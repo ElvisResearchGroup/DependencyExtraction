@@ -32,8 +32,8 @@ public Game(ModelMap m) {this.m=m;}
 @Override public int coordPs(Viewport<ModelMap,Drawable> view, int x, int y, int z) {return view.coordPs(x,y,z);}
 @Override public int pixelX(Viewport<ModelMap,Drawable> view, int coord) {return view.pixelX(coord);}
 @Override public int pixelY(Viewport<ModelMap,Drawable> view, int coord) {return view.pixelY(coord);}
-@Override public double centerX(ModelMap m) {return m.centerX();}
-@Override public double centerY(ModelMap m) {return m.centerY();}
+@Override public double centerX() {return getMap().centerX;}
+@Override public double centerY() {return getMap().centerY;}
 @Override public Graphics2D getGraphics(Viewport<ModelMap,Drawable> view) {return view.getGraphics();}
 @Override public void cameraUp() {cameraZ+=0.2d;}
 @Override public void cameraDown() {cameraZ-=0.2d;}
@@ -42,8 +42,8 @@ public Game(ModelMap m) {this.m=m;}
 @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
 @Override public Map<Character, Runnable> actions() {return this.actionMap;}
 @Override public ModelMap getMap() {return m;}
-@Override public Drawable get(ModelMap m, int x, int y, int z){
-return itemToDrawable(m.map.get(x,y,z));
+@Override public Drawable get(ModelMap m, Viewport<ModelMap, Drawable> v, int x, int y, int z) {
+  return itemToDrawable(m.map.get(x,y,z));
 }
 //only interesting method
 protected Drawable itemToDrawable(Item item){

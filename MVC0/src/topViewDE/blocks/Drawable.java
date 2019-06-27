@@ -4,11 +4,14 @@ import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.stream.IntStream;
+
+import topViewDE.blocks.Drawable.Transparent;
+
 import static general.General.*;
 public interface Drawable{
   <V>void draw(Blocks<V> b,V view, int x, int y, int z);
-  }
-interface Transparent extends Drawable{}
+  interface Transparent extends Drawable{}
+}
 class Air implements Transparent{
   @Override public <V> void draw(Blocks<V> b, V view, int x, int y, int z) {}
   public static final Air instance=new Air();
@@ -70,7 +73,6 @@ class TreeTrunk implements Decoration{
     g.drawLine(xMid0, yMid0, xMid1, yMid1);
    }
 }
-
 class TreeLeaves implements Decoration{
   public void points(Graphics2D g,
     int x000, int x100,
@@ -95,7 +97,7 @@ class TreeLeaves implements Decoration{
 class Water extends Cube /*implements Transparent*/{
   Water(){super(new Color(5,20,250/*,150*/));}
   <V>int dept(Blocks<V> b,V v,int x, int y, int z){
-    assert b.get(v,b.coordDs(v,x,y,z)) instanceof Water;
+    //assert b.get(v,b.coordDs(v,x,y,z)) instanceof Water;
     int dept=0;
     while(z-dept>0 && b.get(v,b.coordDs(v,x,y,z-dept)) instanceof Water)dept+=1;
     return dept;

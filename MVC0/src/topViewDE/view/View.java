@@ -6,16 +6,18 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 
 public interface View<M,D> extends Visit<M,D>{
-  double centerX(M m);//always positive
-  double centerY(M m);//always positive
+  double centerX();//always positive
+  double centerY();//always positive
   void handleKeyEvent(Character c);
-  D get(M m,int x,int y, int z);
-  void drawCell(Viewport<M,D> view,int x,int y,int z);
+  D get(M m,Viewport<M,D> v,int x,int y, int z);
+  void drawCell(Viewport<M,D> v,int x,int y,int z);
   M getMap();
   double getCameraZ();
   JFrame getFrame();
@@ -24,30 +26,33 @@ public interface View<M,D> extends Visit<M,D>{
   static int half=26;
   static double scaleZ=0.5d;
   default void renderViewPort(Graphics2D g, M m,double elevation) {
-    assert centerX(m)>=0d;
-    assert centerY(m)>=0d;
-    int offX=(int)centerX(m);
-    int offY=(int)centerY(m);
-    double extraX=centerX(m)-offX;//only ok if centerX>=0
-    double extraY=centerY(m)-offY;
-    var map=new Viewport<M,D>(g,max+1,max+1,maxZ+1);
+    assert centerX()>=0d;
+    assert centerY()>=0d;
+    int offX=(int)centerX();
+    int offY=(int)centerY();
+    double extraX=centerX()-offX;//only ok if centerX>=0
+    double extraY=centerY()-offY;
+    var v=new Viewport<M,D>(g,max+1,max+1,maxZ+1);
     for(int z=0;z<maxZ+1;z++) for(int x=0;x<max+1;x++)for(int y=0;y<max+1;y++)
-      map.cachePoint(x, y, z, elevation, x+1d-extraX, y+1d-extraY,z*scaleZ);
+      v.cachePoint(x, y, z, elevation, x+1d-extraX, y+1d-extraY,z*scaleZ);
     for(int z=0;z<maxZ;z++) for(int x=0;x<max;x++)for(int y=0;y<max;y++) {
-      D d=get(m,x+offX-half,y+offY-half,z);
-      map.set(d,map.coordDs(x,y,z));
+      D d=get(m,v,x+offX-half,y+offY-half,z);
+      v.set(d,v.coordDs(x,y,z));
     }
-    visitQuadrants(map,max,max,maxZ);
+    visitQuadrants(v,max,max,maxZ);
   }
+  default void onClose() {}
   default void initializeApp() {
-      JFrame f=getFrame();
-      f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-      f.getContentPane().add(new GameMap<M,D>(this));
-      f.pack();
-      f.addKeyListener(new KeyListener() {
+    JFrame f=getFrame();
+    f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+    f.addWindowListener(new WindowAdapter(){
+      public void windowClosing(WindowEvent e){View.this.onClose();}
+      });
+    f.getContentPane().add(new GameMap<M,D>(this));
+    f.pack();
+    f.addKeyListener(new KeyListener() {
       @Override public void keyTyped(KeyEvent e) {
-        View.this.handleKeyEvent(e.getKeyChar());
-        }
+        View.this.handleKeyEvent(e.getKeyChar());}
       @Override public void keyReleased(KeyEvent arg0) {}
       @Override public void keyPressed(KeyEvent arg0) {}
       });

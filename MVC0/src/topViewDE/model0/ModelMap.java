@@ -2,19 +2,15 @@ package topViewDE.model0;
 
 import java.util.Random;
 
-public class ModelMap{
-  double centerX=10;
-  double centerY=10;
-  public double centerX() {return centerX;}
-  public double centerY() {return centerY;}
-  
+public class ModelMap{  
   /*public Item get(int x, int y, int z) {
     if(x==4 && z==15)return Item.ground;
     if(y==4 && z==8)return Item.ground;
     if(y==3 && z==6)return Item.ground;
     return Item.nope;
   }*/
-  
+  public double centerX=10;
+  public double centerY=10;
   int[][]map=new int[100][100];
   {for(int x=0;x<100;x+=1)for(int y=0;y<100;y+=1)map[x][y]=25;
   Random r=new Random();

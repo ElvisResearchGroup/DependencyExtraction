@@ -9,8 +9,6 @@ import static general.General.*;
 public class ModelMap{
   double centerX;
   double centerY;
-  public double centerX() {return centerX;}
-  public double centerY() {return centerY;}
   public RandomMap<Item> map;
   public ModelMap(int side,Random r){
     this.centerX=side/2;

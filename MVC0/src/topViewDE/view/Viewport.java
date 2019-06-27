@@ -2,6 +2,8 @@ package topViewDE.view;
 
 import java.awt.Graphics2D;
 
+import general.Int4T;
+
 public final class Viewport<M,D>{
   public D get(int coord){return ds[coord];}
   public void set(D elem, int coord){ds[coord]=elem;}
@@ -26,8 +28,21 @@ public final class Viewport<M,D>{
   public int pixelY(int coord) {return points[1+2*coord];}
   public void setPixelX(int coord,int that) {points[2*coord]=that;}
   public void setPixelY(int coord,int that) {points[1+2*coord]=that;}
-  static double scale=450d;
+  public final static double scale=450d;
   static int half=400;
+  public <T>T circleToPixel(double cameraElevation,double xi, double yi,double zi,double radius,Int4T<T> i4){
+    double zd=cameraElevation-(zi/2d);
+    double xd=xi-(maxX-1d)/2d;
+    double yd=yi-(maxY-1d)/2d;
+    double d=Math.sqrt(zd*zd+xd*xd+yd*yd);
+    double f=scale/d;
+    double r=radius/d;
+    double xl=xd-radius;
+    double yl=yd-radius;
+    return i4.apply(
+      (int)(Math.round(scale*xl/d-f/2d))+half,(int)(Math.round(r*scale*2d)),
+      (int)(Math.round(scale*yl/d-f/2d))+half,(int)(Math.round(r*scale*2d)));
+  }
   public void cachePoint(int x,int y,int z,double cameraElevation,double xi, double yi,double zi){
     double zd=cameraElevation-(zi/2d);
     double xd=xi-(maxX-1d)/2d;

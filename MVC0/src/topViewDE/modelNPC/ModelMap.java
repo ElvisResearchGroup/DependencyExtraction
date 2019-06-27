@@ -11,11 +11,7 @@ import static general.General.*;
 
 public class ModelMap{
   int side=256;
-  double centerX=side/2;
-  double centerY=side/2;
   int maxZ=75;
-  public double centerX() {return centerX;}
-  public double centerY() {return centerY;}
   public ModelMap(Random r){
     assert side%4==0;
     RandomMap<Item> map=new RandomMap<Item>(side/4,r,10,13,65,maxZ){
