@@ -1,6 +1,8 @@
 package topViewDE.modelNPC;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -8,16 +10,18 @@ import java.util.Random;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import general.Direction;
 import topViewDE.blocks.Blocks;
 import topViewDE.blocks.Drawable;
 import topViewDE.blocks.DrawableConsts;
 import topViewDE.blocks.ImgResources;
 import topViewDE.blocks.NpcDrawable;
-import topViewDE.controller.Controller;
+import topViewDE.npcController.Controller;
 import topViewDE.view.View;
 import topViewDE.view.Viewport;
 
@@ -29,16 +33,29 @@ Blocks<Viewport<ModelMap,Drawable>>
 {
 private static final long serialVersionUID = 1L;
 double cameraZ=30;
-private Map<Character,Runnable> actionMap=makeMap();
+private Map<Character,Consumer<KeyEvent>> actionMap=makeKeyMap();
 private List<Npc> npcs=new ArrayList<>();
 ModelMap m;
 final ScheduledFuture<?> handle;
+private volatile boolean inPing=false;
 public Game(ModelMap m) {
   this.m=m;
   initModel();
   var scheduler =Executors.newScheduledThreadPool(1);
-  handle =scheduler.scheduleAtFixedRate(this::ping, 500, 33,TimeUnit.MILLISECONDS);
+  handle =scheduler.scheduleAtFixedRate(()->{
+    if(inPing) {System.err.println("skipping a ping");return;}
+    inPing=true;
+    try{this.ping();}
+    catch(Throwable t){
+      onClose();
+      t.printStackTrace();
+      System.exit(1);
+      }
+    finally {inPing=false;}
+    },
+    500, 33,TimeUnit.MILLISECONDS);
   }
+
 @Override public void onClose() {handle.cancel(true);}
 @Override public JFrame getFrame() {return this;}
 @Override public List<Npc>  getNpcs() {return npcs;}
@@ -56,7 +73,7 @@ public Game(ModelMap m) {
 @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
 @Override public int maxY(Viewport<ModelMap, Drawable> view) {return view.maxY;}
 @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
-@Override public Map<Character, Runnable> actions() {return this.actionMap;}
+@Override public Map<Character, Consumer<KeyEvent>> getKeyMap() {return this.actionMap;}
 @Override public ModelMap getMap() {return m;}
 @Override public Drawable get(ModelMap m, Viewport<ModelMap, Drawable> v, int x, int y, int z) {
 return itemToDrawable(v,m.get(x,y,z));
@@ -81,14 +98,11 @@ if(item instanceof NpcItem){
 }
 return DrawableConsts.rock;
 }
-//should not be needed but Java is confused
-@Override public void handleKeyEvent(Character c) {Controller.super.handleKeyEvent(c);}
-//@Override public void drawCell(Viewport<ModelMap, Drawable> view, int x, int y, int z){Blocks.super.drawCell(view, x, y, z);}
-@Override public void goNorht() {Model.super.goNorth();}
-@Override public void goSouth() {Model.super.goSouth();}
-@Override public void goEast() {Model.super.goEast();}
-@Override public void goWest() {Model.super.goWest();}
 @Override public double getCameraZ() {return cameraZ;}
+
+@Override public void goDir(Direction dir) {Model.super.goDir(dir);}
+@Override public void stop() {Model.super.stop();}
+@Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
 }
 public class Main {
   public static void main(String[] args) {

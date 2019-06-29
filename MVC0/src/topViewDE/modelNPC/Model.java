@@ -2,6 +2,8 @@ package topViewDE.modelNPC;
 
 import java.util.List;
 
+import general.Direction;
+
 public interface Model{
  void repaint();
  ModelMap getMap();
@@ -16,21 +18,26 @@ public interface Model{
    repaint();
  }
  default double boundPos(double pos) {return Math.max(0,pos);}
- default void goWest() {
-   getNpcs().get(0).speedX=-0.1d;
-   getNpcs().get(0).speedY=0d;
-   }
- default void goEast() {
-   getNpcs().get(0).speedX=0.1d;
-   getNpcs().get(0).speedY=0d;
-   }
- default void goSouth() {
-   getNpcs().get(0).speedY=0.1d;
-   getNpcs().get(0).speedX=0d;
-   }
- default void goNorth() {
-   getNpcs().get(0).speedX=0d;
-   getNpcs().get(0).speedY=-0.1d;
+ default void goDir(Direction dir) {
+   stop();
+   switch(dir) {
+     case North:getNpcs().get(0).speedY=-1d;break;
+     case South:getNpcs().get(0).speedY=+1d;break;
+     case East:getNpcs().get(0).speedX=+1d;break;
+     case West:getNpcs().get(0).speedX=-1d;break;
+     case NorthWest:
+       getNpcs().get(0).speedX=-1d;
+       getNpcs().get(0).speedY=-1d;break;
+     case SouthWest:
+       getNpcs().get(0).speedX=-1d;
+       getNpcs().get(0).speedY=+1d;break;
+     case NorthEast:
+       getNpcs().get(0).speedX=+1d;
+       getNpcs().get(0).speedY=-1d;break;
+     case SouthEast:
+       getNpcs().get(0).speedX=+1d;
+       getNpcs().get(0).speedY=+1d;break;
+     }
    }
  default void stop(){
    getNpcs().get(0).speedX=0d;

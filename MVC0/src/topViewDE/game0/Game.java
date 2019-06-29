@@ -1,12 +1,14 @@
 package topViewDE.game0;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyListener;
 import java.util.Map;
 
 import javax.swing.JFrame;
 
-import topViewDE.controller.*;
+import general.Direction;
 import topViewDE.model0.*;
+import topViewDE.simpleController.*;
 import topViewDE.view.*;
 import topViewDE.blocks.*;
 
@@ -18,7 +20,7 @@ public class Game extends JFrame implements
     {
   private static final long serialVersionUID = 1L;
   double cameraZ=30;
-  private Map<Character,Runnable> actionMap=makeMap();
+  private Map<Character,Runnable> actionMap=makeKeyMap();
   ModelMap m;
   public Game(ModelMap m) {this.m=m;}
   @Override public JFrame getFrame() {return this;}
@@ -36,7 +38,7 @@ public class Game extends JFrame implements
   @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
   @Override public int maxY(Viewport<ModelMap, Drawable> view) {return view.maxY;}
   @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
-  @Override public Map<Character, Runnable> actions() {return this.actionMap;}
+  @Override public Map<Character, Runnable> getKeyMap() {return this.actionMap;}
   @Override public ModelMap getMap() {return m;}
   @Override public Drawable get(ModelMap m, Viewport<ModelMap, Drawable> v, int x, int y, int z) {
     return itemToDrawable(m.get(x,y,z));
@@ -48,12 +50,10 @@ public class Game extends JFrame implements
     if(item==Item.trunk)return DrawableConsts.treeT;
     return DrawableConsts.rock;
     }
-  //should not be needed but Java is confused
-  @Override public void handleKeyEvent(Character c) {Controller.super.handleKeyEvent(c);}
-  //@Override public void drawCell(Viewport<ModelMap, Drawable> view, int x, int y, int z){Blocks.super.drawCell(view, x, y, z);}
-  @Override public void goNorht() {Model.super.goNorth();}
-  @Override public void goSouth() {Model.super.goSouth();}
-  @Override public void goEast() {Model.super.goEast();}
-  @Override public void goWest() {Model.super.goWest();}
+  @Override public void stop() {}
   @Override public double getCameraZ() {return cameraZ;}
+
+  @Override public void goDir(Direction dir) {Model.super.goDir(dir);}
+  @Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
+
 }

@@ -1,16 +1,18 @@
 package topViewDE.modelHeightMap;
 
 import java.awt.Graphics2D;
+import java.awt.event.KeyListener;
 import java.util.Map;
 import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
+import general.Direction;
 import topViewDE.blocks.Blocks;
 import topViewDE.blocks.Drawable;
 import topViewDE.blocks.DrawableConsts;
-import topViewDE.controller.Controller;
+import topViewDE.simpleController.Controller;
 import topViewDE.view.View;
 import topViewDE.view.Viewport;
 
@@ -22,7 +24,7 @@ Blocks<Viewport<ModelMap,Drawable>>
 {
 private static final long serialVersionUID = 1L;
 double cameraZ=30;
-private Map<Character,Runnable> actionMap=makeMap();
+private Map<Character,Runnable> actionMap=makeKeyMap();
 ModelMap m;
 public Game(ModelMap m) {this.m=m;}
 @Override public JFrame getFrame() {return this;}
@@ -40,7 +42,7 @@ public Game(ModelMap m) {this.m=m;}
 @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
 @Override public int maxY(Viewport<ModelMap, Drawable> view) {return view.maxY;}
 @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
-@Override public Map<Character, Runnable> actions() {return this.actionMap;}
+@Override public Map<Character, Runnable> getKeyMap() {return this.actionMap;}
 @Override public ModelMap getMap() {return m;}
 @Override public Drawable get(ModelMap m, Viewport<ModelMap, Drawable> v, int x, int y, int z) {
   return itemToDrawable(m.map.get(x,y,z));
@@ -55,14 +57,12 @@ if(item==Item.grass)return DrawableConsts.grass;
 if(item==Item.ground)return DrawableConsts.ground;
 return DrawableConsts.rock;
 }
-//should not be needed but Java is confused
-@Override public void handleKeyEvent(Character c) {Controller.super.handleKeyEvent(c);}
-//@Override public void drawCell(Viewport<ModelMap, Drawable> view, int x, int y, int z){Blocks.super.drawCell(view, x, y, z);}
-@Override public void goNorht() {Model.super.goNorth();}
-@Override public void goSouth() {Model.super.goSouth();}
-@Override public void goEast() {Model.super.goEast();}
-@Override public void goWest() {Model.super.goWest();}
+
+@Override public void stop() {}
 @Override public double getCameraZ() {return cameraZ;}
+
+@Override public void goDir(Direction dir) {Model.super.goDir(dir);} 
+@Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
 }
 public class Main {
   public static void main(String[] args) {

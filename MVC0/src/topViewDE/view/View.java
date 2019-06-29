@@ -15,7 +15,7 @@ import javax.swing.JFrame;
 public interface View<M,D> extends Visit<M,D>{
   double centerX();//always positive
   double centerY();//always positive
-  void handleKeyEvent(Character c);
+  KeyListener getKeyListener();
   D get(M m,Viewport<M,D> v,int x,int y, int z);
   void drawCell(Viewport<M,D> v,int x,int y,int z);
   M getMap();
@@ -50,12 +50,7 @@ public interface View<M,D> extends Visit<M,D>{
       });
     f.getContentPane().add(new GameMap<M,D>(this));
     f.pack();
-    f.addKeyListener(new KeyListener() {
-      @Override public void keyTyped(KeyEvent e) {
-        View.this.handleKeyEvent(e.getKeyChar());}
-      @Override public void keyReleased(KeyEvent arg0) {}
-      @Override public void keyPressed(KeyEvent arg0) {}
-      });
+    f.addKeyListener(getKeyListener());
     }
 }
 class GameMap<M,D> extends JComponent{

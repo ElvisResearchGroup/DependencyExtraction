@@ -37,29 +37,73 @@ public class Npc {
     boolean impact=isContactOnMap(map);
     if(impact)this.z=oldZ;
   }finally {this.markMeOnMap(map);}}
+  private static final double diagonalReduction=Math.sqrt(0.5d);
+  private static final double tiny=0.000001d;
+  double go(ModelMap map,double energy){
+    double xd=energy*this.speedX;
+    double yd=energy*this.speedY;
+    if(this.speedX!=0 && this.speedY!=0) {
+      xd*=diagonalReduction;
+      yd*=diagonalReduction;
+    }
+    double oldX=this.x;
+    double oldY=this.y;
+    double oldZ=this.z;
+    this.x=oldX+xd;
+    this.y=oldY+yd;
+    boolean impact=isContactOnMap(map);
+    if(!impact)return 0d;
+    this.x=oldX+xd/4d;
+    this.y=oldY+yd/4d;
+    impact=isContactOnMap(map);//to avoiding 'jumping up' if we do not even reach the next tile
+    if(!impact) return 0d;
+    this.z=oldZ+1;
+    impact=isContactOnMap(map);
+    if(!impact) return 0d;
+    //handle semi movement
+    if(xd>0d && Math.floor(this.x+this.radius)!=Math.floor(oldX+this.radius))
+      this.x=Math.floor(this.x+this.radius)-this.radius-tiny;
+    if(xd<0d && Math.ceil(this.x-this.radius)!=Math.ceil(oldX-this.radius))
+       this.x=Math.ceil(this.x-this.radius)+this.radius+tiny;
+    if(yd>0d && Math.floor(this.y+this.radius)!=Math.floor(oldY+this.radius))
+      this.y=Math.floor(this.y+this.radius)-this.radius-tiny;
+    if(yd<0d && Math.ceil(this.y-this.radius)!=Math.ceil(oldY-this.radius))
+       this.y=Math.ceil(this.y-this.radius)+this.radius+tiny;
+    this.z=oldZ;
+    double distX=this.x-oldX;
+    double distY=this.y-oldY;
+    double dist=Math.sqrt(distX*distX+distY*distY);
+    assert energy>=dist;
+    assert !isContactOnMap(map);
+    return energy-dist;
+    }
+
   void go(ModelMap map){
+    //for(int i:range(1))
+    go1(map);//go1 need to go slow to never skip a tile
+  }
+  void go1(ModelMap map){
     if(this.speedX==0d && this.speedY==0d)return;
-    try{
+    double oldSX=this.speedX;
+    double oldSY=this.speedY;
+    try{out:{
       this.unmarkMeOnMap(map);
-      double oldX=this.x;
-      double oldY=this.y;
-      double oldZ=this.z;
-      assert !isContactOnMap(map);
-      this.x+=this.speedX;
-      this.y+=this.speedY;
-      boolean impact=isContactOnMap(map);
-      if(!impact)return;
-      //can I go up 1 and not impact?
-      this.z+=1;
-      impact=isContactOnMap(map);
-      if(!impact) return;
-      this.x=oldX;
-      this.y=oldY;
-      this.z=oldZ;
+      double energy=this.stats.speed;
+      energy=go(map,energy);
+      if(energy<tiny)break out;
       this.speedX=0;
+      energy=go(map,energy);
+      if(energy<tiny)break out;
+      this.speedX=oldSX;
       this.speedY=0;
+      energy=go(map,energy);
+    }}
+    finally {
+      this.speedX=oldSX;
+      this.speedY=oldSY;
+      //assert !isContactOnMap(map);
+      this.markMeOnMap(map);
       }
-    finally {this.markMeOnMap(map);}
     }
 
   BiConsumer<Npc,Model> intent=intentNone;
@@ -116,5 +160,5 @@ class Stats{
   //double resistance, strenght, so on...
 }
 class StatsConsts{
-  public static final Stats human=new Stats(10,1);
+  public static final Stats human=new Stats(0.1,1);
 }
