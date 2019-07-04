@@ -12,6 +12,9 @@ public interface Model{
    Npc first=new Npc(0.2,150,150,70,StatsConsts.human);
    first.markMeOnMap(getMap());
    getNpcs().add(first);
+   Npc second=new Npc(0.2,154.5,154.5,70,StatsConsts.human);
+   second.markMeOnMap(getMap());
+   getNpcs().add(second);
  }
  default void ping() {
    for(Npc npc:getNpcs())npc.ping(this);

@@ -2,7 +2,7 @@ package topViewDE.modelNPC;
 
 import java.util.function.BiConsumer;
 
-import general.Int4;
+import general.Int5;
 
 import static general.General.*;
 public class Npc {
@@ -13,13 +13,15 @@ public class Npc {
     this.z = z;
     this.stats=stats;
     int size=(int)Math.ceil(radius)*2;
-    holder=new NpcItem[size][size];
-    for(int xi:range(size))for(int yi:range(size))holder[xi][yi]=new NpcItem(this);
+    holder=new NpcItem[size][size][height];
+    for(int xi:range(size))for(int yi:range(size))for(int zi:range(height))
+        holder[xi][yi][zi]=new NpcItem(this);
   }
   double radius;
   double x;
   double y;
   double z;
+  int height=2;
   Stats stats;
   double speedX=0;
   double speedY=0;
@@ -32,13 +34,17 @@ public class Npc {
   void fall(ModelMap map) {try {
     this.unmarkMeOnMap(map);
     double oldZ=this.z;
-    assert !isContactOnMap(map);
+    assert !isContactOnMap(map):
+      "";
+    
     this.z-=1;
     boolean impact=isContactOnMap(map);
     if(impact)this.z=oldZ;
   }finally {this.markMeOnMap(map);}}
+  
   private static final double diagonalReduction=Math.sqrt(0.5d);
   private static final double tiny=0.000001d;
+  
   double go(ModelMap map,double energy){
     double xd=energy*this.speedX;
     double yd=energy*this.speedY;
@@ -108,38 +114,41 @@ public class Npc {
 
   BiConsumer<Npc,Model> intent=intentNone;
   void ping(Model m) {
-    fall(m.getMap());
     go(m.getMap());
+    fall(m.getMap());
     intent.accept(this,m);
     }
-  NpcItem[][] holder;
+  NpcItem[][][] holder;
   void markMeOnMap(ModelMap map){
-    _markMap(map,(xl,xi,yl,yi)->{
-      holder[xi-xl][yi-yl].update(map.get(xi,yi,(int)z));
-      map.set(xi,yi,(int)z,holder[xi-xl][yi-yl]);      
+    _markMap(map,(xl,xi,yl,yi,zi)->{
+      holder[xi-xl][yi-yl][zi].update(map.get(xi,yi,((int)z)+zi));
+      map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi]);      
     });
   }
   void unmarkMeOnMap(ModelMap map){
-    _markMap(map,(xl,xi,yl,yi)->{
-      map.set(xi,yi,(int)z,holder[xi-xl][yi-yl].get());      
+    _markMap(map,(xl,xi,yl,yi,zi)->{
+      map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi].get());      
     });
   }
   boolean isContactOnMap(ModelMap map){
     boolean[] res= {false};
-    _markMap(map,(xl,xi,yl,yi)->{
-      Item there=map.get(xi,yi,(int)z);
-      if(there instanceof Item.Full)res[0]|=true;
+    _markMap(map,(xl,xi,yl,yi,zi)->{
+      Item there=map.get(xi,yi,((int)z)+zi);
+      if(there instanceof Item.Full)
+        res[0]|=true;
+      if(there instanceof NpcItem)
+        res[0]|=true;
     });
     return res[0];
   }
-  void _markMap(ModelMap map,Int4 action){
+  void _markMap(ModelMap map,Int5 action){
     int xl=(int)(this.x-radius-1);
     int yl=(int)(this.y-radius-1);
     int xh=(int)(this.x+radius);
     int yh=(int)(this.y+radius);
     assert xh-xl<=holder.length;
-    for(int xi :range(xl,xh))for(int yi :range(yl,yh)){
-      action.apply(xl,xi,yl,yi);
+    for(int zi :range(height))for(int xi :range(xl,xh))for(int yi :range(yl,yh)){
+      action.apply(xl,xi,yl,yi,zi);
     }
   }
 }
