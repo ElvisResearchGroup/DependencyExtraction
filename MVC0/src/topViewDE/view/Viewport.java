@@ -6,19 +6,16 @@ import general.Int4T;
 
 public final class Viewport<M,D>{
   public D get(int coord){return ds[coord];}
-  public void set(D elem, int coord){ds[coord]=elem;}
-  public Graphics2D getGraphics(){return g;}  
+  public void set(D elem, int coord){ds[coord]=elem;} 
   final int[] points;
   final D[] ds;
-  Graphics2D g;
   public final int maxX;
   public final int maxY;
   public final int maxZ;
-  public Viewport(Graphics2D g,int maxX,int maxY, int maxZ) {
+  public Viewport(int maxX,int maxY, int maxZ) {
     this.maxX=maxX;
     this.maxY=maxY;
     this.maxZ=maxZ;
-    this.g=g;
     points=new int[(maxX+1)*(maxY+1)*(maxZ+1)*2];
     @SuppressWarnings("unchecked")
     D[] ds=(D[])new Object[maxX*maxY*maxZ];
@@ -40,8 +37,8 @@ public final class Viewport<M,D>{
     double xl=xd-radius;
     double yl=yd-radius;
     return i4.apply(
-      (int)(Math.round(scale*xl/d-f/2d))+half,(int)(Math.round(r*scale*2d)),
-      (int)(Math.round(scale*yl/d-f/2d))+half,(int)(Math.round(r*scale*2d)));
+      (int)(scale*xl/d-f/2d)+half,(int)(r*scale*2d),
+      (int)(scale*yl/d-f/2d)+half,(int)(r*scale*2d));
   }
   public void cachePoint(int x,int y,int z,double cameraElevation,double xi, double yi,double zi){
     double zd=cameraElevation-(zi/2d);

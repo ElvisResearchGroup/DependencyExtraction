@@ -1,6 +1,5 @@
 package topViewDE.modelNPC;
 
-import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
@@ -38,14 +37,23 @@ private List<Npc> npcs=new ArrayList<>();
 ModelMap m;
 final ScheduledFuture<?> handle;
 private volatile boolean inPing=false;
+private volatile Viewport<ModelMap,Drawable> currentVP;
+@Override public void setCurrentViewPort(Viewport<ModelMap, Drawable> v) {currentVP=v;}
+@Override public Viewport<ModelMap, Drawable> getCurrentViewPort() {assert currentVP!=null;return currentVP;}
 public Game(ModelMap m) {
   this.m=m;
   initModel();
+  updateCurrentViewPort();
   var scheduler =Executors.newScheduledThreadPool(1);
   handle =scheduler.scheduleAtFixedRate(()->{
     if(inPing) {System.err.println("skipping a ping");return;}
     inPing=true;
-    try{this.ping();}
+    try{
+      assert !SwingUtilities.isEventDispatchThread();
+      this.ping();
+      updateCurrentViewPort();
+      repaint();
+      }
     catch(Throwable t){
       onClose();
       t.printStackTrace();
@@ -67,7 +75,6 @@ public Game(ModelMap m) {
 @Override public int pixelY(Viewport<ModelMap,Drawable> view, int coord) {return view.pixelY(coord);}
 @Override public double centerX() {return getNpcs().get(0).x;}
 @Override public double centerY() {return getNpcs().get(0).y;}
-@Override public Graphics2D getGraphics(Viewport<ModelMap,Drawable> view) {return view.getGraphics();}
 @Override public void cameraUp() {cameraZ+=0.2d;}
 @Override public void cameraDown() {cameraZ-=0.2d;}
 @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
@@ -103,6 +110,7 @@ return DrawableConsts.rock;
 @Override public void goDir(Direction dir) {Model.super.goDir(dir);}
 @Override public void stop() {Model.super.stop();}
 @Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
+@Override public void updateCurrentViewPort() {View.super.updateCurrentViewPort();}
 }
 public class Main {
   public static void main(String[] args) {

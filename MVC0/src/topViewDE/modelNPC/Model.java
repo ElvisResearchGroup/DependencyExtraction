@@ -18,7 +18,6 @@ public interface Model{
  }
  default void ping() {
    for(Npc npc:getNpcs())npc.ping(this);
-   repaint();
  }
  default double boundPos(double pos) {return Math.max(0,pos);}
  default void goDir(Direction dir) {

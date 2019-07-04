@@ -22,8 +22,11 @@ public class Game extends JFrame implements
   double cameraZ=30;
   private Map<Character,Runnable> actionMap=makeKeyMap();
   ModelMap m;
-  public Game(ModelMap m) {this.m=m;}
+  public Game(ModelMap m) {this.m=m;updateCurrentViewPort();}
   @Override public JFrame getFrame() {return this;}
+  private volatile Viewport<ModelMap,Drawable> currentVP;
+  @Override public void setCurrentViewPort(Viewport<ModelMap, Drawable> v) {currentVP=v;}
+  @Override public Viewport<ModelMap, Drawable> getCurrentViewPort() {assert currentVP!=null;return currentVP;}
   @Override public Drawable get(Viewport<ModelMap,Drawable> view, int coord) {return view.get(coord);}
   @Override public void set(Viewport<ModelMap,Drawable> view, Drawable elem, int coord) {view.set(elem,coord);}
   @Override public int coordDs(Viewport<ModelMap,Drawable> view, int x, int y, int z) {return view.coordDs(x,y,z);}
@@ -32,9 +35,8 @@ public class Game extends JFrame implements
   @Override public int pixelY(Viewport<ModelMap,Drawable> view, int coord) {return view.pixelY(coord);}
   @Override public double centerX() {return getMap().centerX;}
   @Override public double centerY() {return getMap().centerY;}
-  @Override public Graphics2D getGraphics(Viewport<ModelMap,Drawable> view) {return view.getGraphics();}
-  @Override public void cameraUp() {cameraZ+=0.1d;}
-  @Override public void cameraDown() {cameraZ-=0.1d;}
+  @Override public void cameraUp() {cameraZ+=0.1d;updateCurrentViewPort();}
+  @Override public void cameraDown() {cameraZ-=0.1d;updateCurrentViewPort();}
   @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
   @Override public int maxY(Viewport<ModelMap, Drawable> view) {return view.maxY;}
   @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
@@ -55,5 +57,5 @@ public class Game extends JFrame implements
 
   @Override public void goDir(Direction dir) {Model.super.goDir(dir);}
   @Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
-
-}
+  @Override public void updateCurrentViewPort() {View.super.updateCurrentViewPort();}
+  }

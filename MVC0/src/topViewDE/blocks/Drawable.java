@@ -9,16 +9,16 @@ import topViewDE.blocks.Drawable.Transparent;
 
 import static general.General.*;
 public interface Drawable{
-  <V>void draw(Blocks<V> b,V view, int x, int y, int z);
+  <V>void draw(Blocks<V> b,V view,Graphics2D g, int x, int y, int z);
   interface Transparent extends Drawable{}
 }
 class Air implements Transparent{
-  @Override public <V> void draw(Blocks<V> b, V view, int x, int y, int z) {}
+  @Override public <V> void draw(Blocks<V> b, V view,Graphics2D g, int x, int y, int z) {}
   public static final Air instance=new Air();
 }
 
 interface Decoration extends Transparent{
-  default<V> void draw(Blocks<V> b,V v,int x, int y, int z) {
+  default<V> void draw(Blocks<V> b,V v,Graphics2D g,int x, int y, int z) {
     int c11=b.coordPs(v,x, y, z);
     int c21=b.coordPs(v,x+1, y, z);
     int c31=b.coordPs(v,x+1, y+1, z);
@@ -27,7 +27,7 @@ interface Decoration extends Transparent{
     int c22=b.coordPs(v,x+1, y, z+1);
     int c32=b.coordPs(v,x+1, y+1, z+1);
     int c42=b.coordPs(v,x, y+1, z+1);
-    points(b.getGraphics(v),
+    points(g,
       b.pixelX(v,c11),b.pixelX(v,c21),
       b.pixelX(v,c31),b.pixelX(v,c41),
       b.pixelX(v,c12),b.pixelX(v,c22),
@@ -118,7 +118,7 @@ class Cube implements Drawable{
     if(x>=b.maxX(v) ||y>=b.maxY(v) ||z>=b.maxZ(v))return true;
     return b.get(v,b.coordDs(v,x,y,z)) instanceof Transparent;
   }
-  public<V> void draw(Blocks<V> b,V v,int x, int y, int z) {
+  public<V> void draw(Blocks<V> b,V v,Graphics2D g,int x, int y, int z) {
     boolean up=y<b.maxY(v)/2d-1d;
     boolean down=y>b.maxY(v)/2d-1d;
     boolean left=x<b.maxX(v)/2d-1d;
@@ -128,15 +128,15 @@ class Cube implements Drawable{
       boolean paintLeft=right && isTransparent(b,v,x-1,y,z);
       boolean paintRight=left && isTransparent(b,v,x+1,y,z);
       boolean paintDown=up && isTransparent(b,v,x,y+1,z);
-      if(paintLeft)fill4(b,v,left(colorOf(b,v,x,y,z)),
+      if(paintLeft)fill4(b,v,g,left(colorOf(b,v,x,y,z)),
         b.coordPs(v,x,y,z), b.coordPs(v,x,y+1,z), b.coordPs(v,x,y+1,z+1), b.coordPs(v,x,y,z+1));
-      if(paintUp)fill4(b,v,up(colorOf(b,v,x,y,z)),
+      if(paintUp)fill4(b,v,g,up(colorOf(b,v,x,y,z)),
         b.coordPs(v,x, y, z),b.coordPs(v,x+1, y, z),b.coordPs(v,x+1, y, z+1),b.coordPs(v,x, y, z+1));
-      if(paintRight)fill4(b,v,left(colorOf(b,v,x,y,z)),
+      if(paintRight)fill4(b,v,g,left(colorOf(b,v,x,y,z)),
         b.coordPs(v,x+1,y,z), b.coordPs(v,x+1,y+1,z), b.coordPs(v,x+1,y+1,z+1), b.coordPs(v,x+1,y,z+1));
-      if(paintDown)fill4(b,v,up(colorOf(b,v,x,y,z)),
+      if(paintDown)fill4(b,v,g,up(colorOf(b,v,x,y,z)),
         b.coordPs(v,x,y+1,z), b.coordPs(v,x+1,y+1,z), b.coordPs(v,x+1,y+1,z+1), b.coordPs(v,x,y+1,z+1));
-      if(paintTop)fill4(b,v,colorOf(b,v,x,y,z),
+      if(paintTop)fill4(b,v,g,colorOf(b,v,x,y,z),
         b.coordPs(v,x,y,z+1), b.coordPs(v,x+1,y,z+1), b.coordPs(v,x+1,y+1,z+1), b.coordPs(v,x,y+1,z+1));
       }
     <V> Color colorOf(Blocks<V> b,V v,int x, int y, int z){
@@ -155,10 +155,10 @@ class Cube implements Drawable{
     private static final Color brown2=new Color(154, 87, 25);
     private Color up(Color c) {return mix(c,brown2);}
     
-    static public <V>void fill4(Blocks<V> b,V v,Color c, int p1, int p2, int p3,int p4) {
+    static public <V>void fill4(Blocks<V> b,V v,Graphics2D g,Color c, int p1, int p2, int p3,int p4) {
       int[]x= {b.pixelX(v,p1),b.pixelX(v,p2),b.pixelX(v,p3),b.pixelX(v,p4)};
       int[]y= {b.pixelY(v,p1),b.pixelY(v,p2),b.pixelY(v,p3),b.pixelY(v,p4)};
-      b.getGraphics(v).setColor(c);
-      b.getGraphics(v).fillPolygon(x, y, 4);
+      g.setColor(c);
+      g.fillPolygon(x, y, 4);
     }
   }
