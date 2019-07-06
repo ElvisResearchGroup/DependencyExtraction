@@ -1,16 +1,15 @@
 package topViewDE.npcController;
 
-import java.awt.AWTEvent;
-import java.awt.Event;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
 import general.Direction;
 
-public interface Controller{
+public interface Controller<A>{
   default KeyListener getKeyListener() {
     return new KeyListener() {
       @Override public void keyTyped(KeyEvent e) {
@@ -29,11 +28,14 @@ public interface Controller{
     if(mapped!=null)mapped.accept(e);
   }
   void goDir(Direction dir);
+  List<A> allActions();
+  void doAction(A a);
   void stop();
   void cameraUp();
   void cameraDown();
   void repaint();
   Map<Character,Consumer<KeyEvent>> getKeyMap();
+  private boolean isRelease(KeyEvent e) {return e.getID()==KeyEvent.KEY_RELEASED;}
   default Map<Character,Consumer<KeyEvent>> makeKeyMap(){
     class Local{
       boolean n;
@@ -41,6 +43,9 @@ public interface Controller{
       boolean s;
       boolean e;
       void act() {
+        System.out.println("  "+n);
+        System.out.println(w+"  "+e);
+        System.out.println("  "+s);
         if(!n&&!s&&!w&&!e){stop();return;}
         if((n&&s)||(w&&e)){stop();return;}
         if(!n&&!s) {
@@ -57,10 +62,10 @@ public interface Controller{
         assert e;goDir(Direction.SouthEast);return;
       }}
     Local l=new Local();
-    Consumer<KeyEvent> north=e->{l.n=e.getID()!=KeyEvent.KEY_RELEASED;l.act();};
-    Consumer<KeyEvent> south=e->{l.s=e.getID()!=KeyEvent.KEY_RELEASED;l.act();};
-    Consumer<KeyEvent> east=e->{l.e=e.getID()!=KeyEvent.KEY_RELEASED;l.act();};
-    Consumer<KeyEvent> west=e->{l.w=e.getID()!=KeyEvent.KEY_RELEASED;l.act();};
+    Consumer<KeyEvent> north=e->{l.n=!isRelease(e);l.act();};
+    Consumer<KeyEvent> south=e->{l.s=!isRelease(e);l.act();};
+    Consumer<KeyEvent> east=e->{l.e=!isRelease(e);l.act();};
+    Consumer<KeyEvent> west=e->{l.w=!isRelease(e);l.act();};
     var res=new HashMap<Character,Consumer<KeyEvent>>();
     res.put('8',north);
     res.put('2',south);
@@ -68,6 +73,7 @@ public interface Controller{
     res.put('4',west);
     res.put('5',e->{cameraUp();repaint();});
     res.put('0',e->{cameraDown();repaint();});
+    res.put(' ',e->{if(isRelease(e))doAction(allActions().get(0));});
     return res;
     }
   }

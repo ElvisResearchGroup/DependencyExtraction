@@ -1,6 +1,7 @@
 package topViewDE.modelNPC;
 
 import java.util.List;
+import java.util.Set;
 
 import general.Direction;
 
@@ -17,33 +18,28 @@ public interface Model{
    getNpcs().add(second);
  }
  default void ping() {
+   //Action.stop.apply(this,getNpcs().get(0));
+   for(Action a:pendingActions())
+     a.apply(this,getNpcs().get(0));
    for(Npc npc:getNpcs())npc.ping(this);
  }
  default double boundPos(double pos) {return Math.max(0,pos);}
+ List<Action> allActions=List.of(Action.fireSpirit);
+ default List<Action> allActions(){return allActions;}
+ Set<Action>pendingActions();//this also clear the pending actions
+ void doAction(Action a);
  default void goDir(Direction dir) {
-   stop();
    switch(dir) {
-     case North:getNpcs().get(0).speedY=-1d;break;
-     case South:getNpcs().get(0).speedY=+1d;break;
-     case East:getNpcs().get(0).speedX=+1d;break;
-     case West:getNpcs().get(0).speedX=-1d;break;
-     case NorthWest:
-       getNpcs().get(0).speedX=-1d;
-       getNpcs().get(0).speedY=-1d;break;
-     case SouthWest:
-       getNpcs().get(0).speedX=-1d;
-       getNpcs().get(0).speedY=+1d;break;
-     case NorthEast:
-       getNpcs().get(0).speedX=+1d;
-       getNpcs().get(0).speedY=-1d;break;
-     case SouthEast:
-       getNpcs().get(0).speedX=+1d;
-       getNpcs().get(0).speedY=+1d;break;
+     case North:doAction(Action.north);break;
+     case South:doAction(Action.south);break;
+     case East:doAction(Action.east);break;
+     case West:doAction(Action.west);break;
+     case NorthWest:doAction(Action.northWest);break;
+     case SouthWest:doAction(Action.southWest);break;
+     case NorthEast:doAction(Action.northEast);break;
+     case SouthEast:doAction(Action.southEast);break;
      }
    }
- default void stop(){
-   getNpcs().get(0).speedX=0d;
-   getNpcs().get(0).speedY=0d;   
-   }
+ default void stop(){doAction(Action.stop);}
  }
 

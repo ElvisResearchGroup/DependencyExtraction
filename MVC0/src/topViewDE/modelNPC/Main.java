@@ -3,9 +3,12 @@ package topViewDE.modelNPC;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -27,7 +30,7 @@ import topViewDE.view.Viewport;
 class Game extends JFrame implements 
 Model,
 View<ModelMap,Drawable>,
-Controller,
+Controller<Action>,
 Blocks<Viewport<ModelMap,Drawable>>
 {
 private static final long serialVersionUID = 1L;
@@ -106,9 +109,21 @@ if(item instanceof NpcItem){
 return DrawableConsts.rock;
 }
 @Override public double getCameraZ() {return cameraZ;}
+volatile Set<Action>pendingActions=new LinkedHashSet<Action>();
+@Override public Set<Action>pendingActions(){
+  synchronized(pendingActions){
+    Set<Action>pendingLocal=pendingActions;
+    pendingActions=new LinkedHashSet<Action>();
+    return pendingLocal;
+    }
+}
+@Override public void doAction(Action a) {
+  synchronized(pendingActions){pendingActions.add(a);}
+}
 
 @Override public void goDir(Direction dir) {Model.super.goDir(dir);}
 @Override public void stop() {Model.super.stop();}
+@Override public List<Action> allActions() {return Model.super.allActions();}
 @Override public KeyListener getKeyListener() {return Controller.super.getKeyListener();}
 @Override public void updateCurrentViewPort() {View.super.updateCurrentViewPort();}
 }

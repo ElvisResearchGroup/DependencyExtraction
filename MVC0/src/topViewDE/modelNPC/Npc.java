@@ -136,8 +136,18 @@ public class Npc {
       Item there=map.get(xi,yi,((int)z)+zi);
       if(there instanceof Item.Full)
         res[0]|=true;
-      if(there instanceof NpcItem)
-        res[0]|=true;
+      if(there instanceof NpcItem) {res[0]|=true;
+        /*double r=((NpcItem)there).npc.radius;
+        double x=((NpcItem)there).npc.x;
+        double y=((NpcItem)there).npc.y;
+        x=(this.x-x)*(this.x-x);
+        y=(this.y-y)*(this.y-y);
+        double dist=Math.sqrt(x+y);
+        //bug: if we want to go forward and we touch, right now we walk to the border of the cell...
+        //does not work. Who will own the NpcHolders? should they act like a holder linked list?
+        //System.out.println("dist "+dist+" "+(dist<=r+this.radius));
+        res[0]|=dist<=r+this.radius;*/
+        }
     });
     return res[0];
   }

@@ -2,6 +2,7 @@ package topViewDE.view;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.awt.Graphics2D;
 import java.util.List;
 
 import org.junit.jupiter.api.Test;
@@ -18,9 +19,9 @@ public class TestView {
         List.of(13,14,23,10, 9)
         );
     new Visit<Object,Object>(){
-      public void drawCell(Viewport<Object,Object> vp,int x, int y, int z) {
+      @Override public void drawCell(Viewport<Object,Object> vp,Graphics2D g,int x, int y, int z) {
         b.append(l.get(y).get(x)+" ");
-      }}.visitQuadrants(null, 5, 5, 1);
+      }}.visitQuadrants(null,null, 5, 5, 1);
     assertEquals("1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 ",
         b.toString());    
   }
