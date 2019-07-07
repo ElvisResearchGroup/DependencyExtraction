@@ -68,7 +68,7 @@ class GameMap<M,D> extends JComponent{
   View<M,D> game;
   GameMap(View<M,D> game){this.game=game;setDoubleBuffered(true);}
   @Override public void paintComponent(Graphics g) {
-    game.renderViewPort((Graphics2D)g,game.getMap(),game.getCameraZ());
+    game.renderViewPort((Graphics2D)g,game.getMap(),game.getCameraZ()*View.scaleZ);
   }
 }
 interface Visit<M,D>{

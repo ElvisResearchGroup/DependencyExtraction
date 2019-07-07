@@ -43,9 +43,6 @@ public interface Controller<A>{
       boolean s;
       boolean e;
       void act() {
-        System.out.println("  "+n);
-        System.out.println(w+"  "+e);
-        System.out.println("  "+s);
         if(!n&&!s&&!w&&!e){stop();return;}
         if((n&&s)||(w&&e)){stop();return;}
         if(!n&&!s) {
@@ -74,6 +71,8 @@ public interface Controller<A>{
     res.put('5',e->{cameraUp();repaint();});
     res.put('0',e->{cameraDown();repaint();});
     res.put(' ',e->{if(isRelease(e))doAction(allActions().get(0));});
+    res.put('d',e->{if(isRelease(e))doAction(allActions().get(1));});
+    res.put('s',e->{if(isRelease(e))doAction(allActions().get(2));});
     return res;
     }
   }

@@ -83,6 +83,16 @@ public class Npc {
     assert !isContactOnMap(map);
     return energy-dist;
     }
+  double spawnX(double r) {
+    if(speedX>0)return Math.ceil(x+radius+r)+tiny;
+    if(speedX<0)return Math.floor(x-radius-r)-tiny;
+    assert speedX==0;return x;
+    }
+  double spawnY(double r) {
+    if(speedY>0)return Math.ceil(y+radius+r)+tiny;
+    if(speedY<0)return Math.floor(y-radius-r)-tiny;
+    assert speedY==0;return y;
+    }
 
   void go(ModelMap map){
     //for(int i:range(1))

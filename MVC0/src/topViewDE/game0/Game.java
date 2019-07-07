@@ -1,6 +1,5 @@
 package topViewDE.game0;
 
-import java.awt.Graphics2D;
 import java.awt.event.KeyListener;
 import java.util.Map;
 

@@ -12,6 +12,7 @@ public interface Blocks<V>{
   int coordPs(V view, int x, int y, int z);
   int pixelX(V view, int coord);
   int pixelY(V view, int coord);
+  double getCameraZ();
   default void drawCell(V view,Graphics2D g,int x,int y,int z) {
     var d=get(view,coordDs(view,x,y,z));
     assert d!=null: x+" "+y+" "+z;

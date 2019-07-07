@@ -24,7 +24,7 @@ public interface Model{
    for(Npc npc:getNpcs())npc.ping(this);
  }
  default double boundPos(double pos) {return Math.max(0,pos);}
- List<Action> allActions=List.of(Action.fireSpirit);
+ List<Action> allActions=List.of(Action.fireSpirit,Action.dig,Action.build);
  default List<Action> allActions(){return allActions;}
  Set<Action>pendingActions();//this also clear the pending actions
  void doAction(Action a);

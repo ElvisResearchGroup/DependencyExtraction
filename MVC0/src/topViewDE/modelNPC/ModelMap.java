@@ -114,6 +114,12 @@ public class ModelMap{
     var lz=items[x+y*side];
     while(lz.size()<=z)lz.add(Item.air);
     lz.set(z,item);
+  }
+  public void dig(double x, double y, double z) {
+    set((int)x-1,(int)y-1,(int)z,Item.air);
+  }
+  public void build(double x, double y, double z, Item i) {
+    set((int)x-1,(int)y-1,(int)z,i);    
   } 
 
 }
