@@ -34,7 +34,7 @@ Controller<Action>,
 Blocks<Viewport<ModelMap,Drawable>>
 {
 private static final long serialVersionUID = 1L;
-double cameraZ=30;
+double cameraDeltaZ=6;
 private Map<Character,Consumer<KeyEvent>> actionMap=makeKeyMap();
 private List<Npc> npcs=new ArrayList<>();
 ModelMap m;
@@ -78,8 +78,8 @@ public Game(ModelMap m) {
 @Override public int pixelY(Viewport<ModelMap,Drawable> view, int coord) {return view.pixelY(coord);}
 @Override public double centerX() {return getNpcs().get(0).x;}
 @Override public double centerY() {return getNpcs().get(0).y;}
-@Override public void cameraUp() {cameraZ+=0.2d;}
-@Override public void cameraDown() {cameraZ-=0.2d;}
+@Override public void cameraUp() {cameraDeltaZ+=0.2d;}
+@Override public void cameraDown() {cameraDeltaZ-=0.2d;}
 @Override public int maxX(Viewport<ModelMap, Drawable> view) {return view.maxX;}
 @Override public int maxY(Viewport<ModelMap, Drawable> view) {return view.maxY;}
 @Override public int maxZ(Viewport<ModelMap, Drawable> view) {return view.maxZ;}
@@ -102,13 +102,13 @@ if(item instanceof NpcItem){
   double x=i.npc.x-centerX()+View.half;
   double y=i.npc.y-centerY()+View.half;
   double z=i.npc.z*View.scaleZ;
-  return v.circleToPixel(this.cameraZ,x,y,z,i.npc.radius,
+  return v.circleToPixel(this.getCameraZ(),x,y,z,i.npc.radius,
     (xl,xSide,yl,ySide)->
     new NpcDrawable(d,ImgResources.Smile.img,xSide,xl,yl));
 }
 return DrawableConsts.rock;
 }
-@Override public double getCameraZ() {return cameraZ;}
+@Override public double getCameraZ() {return npcs.get(0).z/4d+cameraDeltaZ;}
 volatile Set<Action>pendingActions=new LinkedHashSet<Action>();
 @Override public Set<Action>pendingActions(){
   synchronized(pendingActions){

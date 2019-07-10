@@ -21,6 +21,7 @@ public class NpcDrawable implements Transparent{
   int x;
   int y;
   public<V> void draw(Blocks<V> b,V v,Graphics2D g,int x, int y, int z) {
+    if(Drawable.underCamera(b,z))return;
     //Decoration.super.draw(b,v,x,y,z);
     over.draw(b,v,g,x,y,z);
     Cube.fill4(b,v,g,new Color(100,100,100,100),

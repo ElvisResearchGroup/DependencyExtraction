@@ -11,6 +11,9 @@ import static general.General.*;
 public interface Drawable{
   <V>void draw(Blocks<V> b,V view,Graphics2D g, int x, int y, int z);
   interface Transparent extends Drawable{}
+  static <V>boolean underCamera(Blocks<V> b,int z) {
+    return b.getCameraZ()*4d<=z+10;
+  }
 }
 class Air implements Transparent{
   @Override public <V> void draw(Blocks<V> b, V view,Graphics2D g, int x, int y, int z) {}
@@ -19,6 +22,7 @@ class Air implements Transparent{
 
 interface Decoration extends Transparent{
   default<V> void draw(Blocks<V> b,V v,Graphics2D g,int x, int y, int z) {
+    if(Drawable.underCamera(b,z))return;
     int c11=b.coordPs(v,x, y, z);
     int c21=b.coordPs(v,x+1, y, z);
     int c31=b.coordPs(v,x+1, y+1, z);
@@ -114,11 +118,13 @@ class Cube implements Drawable{
   Color mainColor;
   Cube(Color mainColor){this.mainColor=mainColor;}
   <V>boolean isTransparent(Blocks<V> b,V v,int x, int y, int z){
+    if(Drawable.underCamera(b,z))return true;
     if(x<0 || y<0 || z<0)return true;
     if(x>=b.maxX(v) ||y>=b.maxY(v) ||z>=b.maxZ(v))return true;
     return b.get(v,b.coordDs(v,x,y,z)) instanceof Transparent;
   }
   public<V> void draw(Blocks<V> b,V v,Graphics2D g,int x, int y, int z) {
+    if(Drawable.underCamera(b,z))return;
     boolean up=y<b.maxY(v)/2d-1d;
     boolean down=y>b.maxY(v)/2d-1d;
     boolean left=x<b.maxX(v)/2d-1d;
@@ -140,9 +146,12 @@ class Cube implements Drawable{
         b.coordPs(v,x,y,z+1), b.coordPs(v,x+1,y,z+1), b.coordPs(v,x+1,y+1,z+1), b.coordPs(v,x,y+1,z+1));
       }
     <V> Color colorOf(Blocks<V> b,V v,int x, int y, int z){
-      z=(int)Math.abs(b.getCameraZ()-z);
-      z=Math.max(0,Math.min(255,z*10-50));
-      return mix(mainColor,new Color(z,z,z));
+      z=(int)Math.abs(b.getCameraZ()*4d-z);
+      z=z-24;
+      Color c=mainColor;
+      if(z>0)for(int i:range(z))c=mix(c,c.darker());
+      else for(int i:range(-z))c=mix(c,c.brighter());      
+      return mix(c,mainColor);
       }
     Color mix(Color c1,Color c2) {
       return new Color(
