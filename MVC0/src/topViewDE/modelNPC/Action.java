@@ -10,12 +10,19 @@ public interface Action {
   };
   Action dig=(m,n)->{
     if(n.speedX==0d && n.speedY==0d)
+      n.markMapXY(m.getMap(),(xl,xi,yl,yi)->{
+        for(int i:range(n.height*2))
+          m.getMap().dig(xi,yi,n.z-1+i);
+        });
+    double oldX=n.x;
+    double oldY=n.y;
+    n.moveEthereal(n.stats.speed,1);
+    n.markMapXY(m.getMap(),(xl,xi,yl,yi)->{
       for(int i:range(n.height*2))
-        m.getMap().dig(n.x,n.y,n.z-1+i);
-    double x=n.spawnX(0);
-    double y=n.spawnY(0);
-    for(int i:range(n.height*2))
-      m.getMap().dig(x,y,n.z+i);
+        m.getMap().dig(xi,yi,n.z+i);
+      });
+    n.x=oldX;
+    n.y=oldY;
     };
     Action build=(m,n)->{
       double oldZ=n.z;
@@ -23,7 +30,9 @@ public interface Action {
       try{
         n.z+=1;
         if(n.isContactOnMap(m.getMap())){n.z=oldZ;}
-        else m.getMap().build(n.x,n.y,oldZ,Item.rock);
+        else n.markMapXY(m.getMap(),(xl,xi,yl,yi)->{
+            m.getMap().build(xi,yi,oldZ,Item.rock);
+          });
       }
       finally{n.markMeOnMap(m.getMap());}
       };

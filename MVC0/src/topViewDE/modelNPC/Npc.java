@@ -2,7 +2,7 @@ package topViewDE.modelNPC;
 
 import java.util.function.BiConsumer;
 
-import general.Int5;
+import general.Int4;
 
 import static general.General.*;
 public class Npc {
@@ -44,7 +44,17 @@ public class Npc {
   
   private static final double diagonalReduction=Math.sqrt(0.5d);
   private static final double tiny=0.000001d;
-  
+
+  public void moveEthereal(double energy, double fraction) {
+    double xd=energy*this.speedX*fraction;
+    double yd=energy*this.speedY*fraction;
+    if(this.speedX!=0 && this.speedY!=0) {
+      xd*=diagonalReduction;
+      yd*=diagonalReduction;
+    }
+    this.x+=xd;
+    this.y+=yd;
+  }
   double go(ModelMap map,double energy){
     double xd=energy*this.speedX;
     double yd=energy*this.speedY;
@@ -130,45 +140,48 @@ public class Npc {
     }
   NpcItem[][][] holder;
   void markMeOnMap(ModelMap map){
-    _markMap(map,(xl,xi,yl,yi,zi)->{
-      holder[xi-xl][yi-yl][zi].update(map.get(xi,yi,((int)z)+zi));
-      map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi]);      
-    });
+    markMapXY(map,(xl,xi,yl,yi)->{
+      for(int zi :range(height)){
+        holder[xi-xl][yi-yl][zi].update(map.get(xi,yi,((int)z)+zi));
+        map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi]);      
+      }});
   }
   void unmarkMeOnMap(ModelMap map){
-    _markMap(map,(xl,xi,yl,yi,zi)->{
-      map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi].get());      
+    markMapXY(map,(xl,xi,yl,yi)->{
+      for(int zi :range(height))
+        map.set(xi,yi,((int)z)+zi,holder[xi-xl][yi-yl][zi].get());      
     });
   }
   boolean isContactOnMap(ModelMap map){
     boolean[] res= {false};
-    _markMap(map,(xl,xi,yl,yi,zi)->{
-      Item there=map.get(xi,yi,((int)z)+zi);
-      if(there instanceof Item.Full)
-        res[0]|=true;
-      if(there instanceof NpcItem) {res[0]|=true;
-        /*double r=((NpcItem)there).npc.radius;
-        double x=((NpcItem)there).npc.x;
-        double y=((NpcItem)there).npc.y;
-        x=(this.x-x)*(this.x-x);
-        y=(this.y-y)*(this.y-y);
-        double dist=Math.sqrt(x+y);
-        //bug: if we want to go forward and we touch, right now we walk to the border of the cell...
-        //does not work. Who will own the NpcHolders? should they act like a holder linked list?
-        //System.out.println("dist "+dist+" "+(dist<=r+this.radius));
-        res[0]|=dist<=r+this.radius;*/
-        }
-    });
+    markMapXY(map,(xl,xi,yl,yi)->{
+      for(int zi :range(height)){
+        Item there=map.get(xi,yi,((int)z)+zi);
+        if(there instanceof Item.Full)
+          res[0]|=true;
+        if(there instanceof NpcItem) {res[0]|=true;
+          /*double r=((NpcItem)there).npc.radius;
+          double x=((NpcItem)there).npc.x;
+          double y=((NpcItem)there).npc.y;
+          x=(this.x-x)*(this.x-x);
+          y=(this.y-y)*(this.y-y);
+          double dist=Math.sqrt(x+y);
+          //bug: if we want to go forward and we touch, right now we walk to the border of the cell...
+          //does not work. Who will own the NpcHolders? should they act like a holder linked list?
+          //System.out.println("dist "+dist+" "+(dist<=r+this.radius));
+          res[0]|=dist<=r+this.radius;*/
+          }
+      }});
     return res[0];
   }
-  void _markMap(ModelMap map,Int5 action){
+  public void markMapXY(ModelMap map,Int4 action){
     int xl=(int)(this.x-radius-1);
     int yl=(int)(this.y-radius-1);
     int xh=(int)(this.x+radius);
     int yh=(int)(this.y+radius);
     assert xh-xl<=holder.length;
-    for(int zi :range(height))for(int xi :range(xl,xh))for(int yi :range(yl,yh)){
-      action.apply(xl,xi,yl,yi,zi);
+    for(int xi :range(xl,xh))for(int yi :range(yl,yh)){
+      action.apply(xl,xi,yl,yi);
     }
   }
 }

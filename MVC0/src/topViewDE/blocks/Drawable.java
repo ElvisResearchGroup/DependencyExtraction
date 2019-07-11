@@ -146,12 +146,22 @@ class Cube implements Drawable{
         b.coordPs(v,x,y,z+1), b.coordPs(v,x+1,y,z+1), b.coordPs(v,x+1,y+1,z+1), b.coordPs(v,x,y+1,z+1));
       }
     <V> Color colorOf(Blocks<V> b,V v,int x, int y, int z){
-      z=(int)Math.abs(b.getCameraZ()*4d-z);
-      z=z-24;
+      //z=(int)Math.abs(b.getCameraZ()*4d-z);
+      //z=z-24;
+      //Color c=mainColor;
+      //if(z>0)for(int i:range(z))c=mix(c,c.darker());
+      //else for(int i:range(-z))c=mix(c,c.brighter());      
+      //return mix(c,mainColor);
       Color c=mainColor;
-      if(z>0)for(int i:range(z))c=mix(c,c.darker());
-      else for(int i:range(-z))c=mix(c,c.brighter());      
-      return mix(c,mainColor);
+      int variant=z%12;
+      if(variant>6)variant=12-variant;
+      variant-=3;
+      if(variant>0)for(int i:range(variant))c=mix(c,c.darker());
+      else for(int i:range(-variant))c=mix(c,c.brighter());      
+      int snowy=(z-6)/11;
+      Color snow=new Color(250,250,250);
+      if(snowy>0)for(int i:range(snowy))c=mix(c,mix(c,snow));
+      return c;
       }
     Color mix(Color c1,Color c2) {
       return new Color(
